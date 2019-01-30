@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+	<!-- 定义customerService为anotherCustomerService和telephoneService的parent -->
+	<bean id="customerService" class="com.honglin_chen.spring_bean_definition_inheritance.service.CustomerService">
+		<property name="welcomeMessage" value="Welcome"/>
+		<property name="customerName" value="泓霖"/> 
+	</bean>
+	
+	<!-- 定义anotherCustomerService为不声明类的bean, 即同其父bean共享同一个类 -->
+	<bean id="anotherCustomerService" parent="customerService">
+		<!-- 作为子bean其继承的父bean中的一个实例变量 -->
+		<property name="welcomeMessage" value="Hi...!" />
+	</bean>
+	
+	<!-- 全新类的bean, 从其父bean customerService继承property并且加入新的property -->
+	<bean id="telephoneService" class="com.honglin_chen.spring_bean_definition_inheritance.service.SpecificService"
+		parent="customerService">
+		<!-- 继承客户服务, 重载welcomeMessage property, 继承customerName property
+			 所以不需要定义, 即一旦customerName在customerService中初始化将会被沿袭到
+			 当前bean的(隐性)customerName property -->
+		<property name="welcomeMessage" value="Hello...!" />
+		<!-- 加入不同于其父bean的新的property -->
+		<property name="serviceName" value="Telephone service" /> 
+	</bean>
+	
+	<!-- 定义抽象模版作为父类bean -->
+	<bean id="beanWelcomeTemplate" abstract="true" >
+		<property name="welcomeMessage" value="Hello! Welcome to " /> 
+	</bean>
+	
+	<!-- 子类bean继承抽象模版父类bean, 但是通过SpecificService类实例实现 -->
+	<bean id="consultationService" class="com.honglin_chen.spring_bean_definition_inheritance.service.SpecificService"
+		parent="beanWelcomeTemplate">
+		<!-- 因为需要用到serviceName property, 所以需要为bean创建SpecificService实例
+			 以获得serviceName成员变量的access使用权, 因为当前bean继承的是beanWelcome
+			 Template, 所以在实例中出现的this.welcomeMessage会指向原始bean父类bean的
+			 property -->
+		<!-- <property name="welcomeMessage" value="继承模版property" /> 如果重载
+			 父类bean的property则显示"继承模版property", 否则在当前bean找不到welcomeM
+			 essage property会回溯到父类bean中寻找 -->
+		<property name="serviceName" value="Consultance Service" /> 
+	</bean>
+</beans>
